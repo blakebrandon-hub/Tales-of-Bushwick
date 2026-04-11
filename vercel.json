@@ -1,4 +1,5 @@
 {
-  "buildCommand": "sed \"s|{{ANTHROPIC_API_KEY}}|$ANTHROPIC_API_KEY|g\" index.html > index.tmp && mv index.tmp index.html",
-  "outputDirectory": "."
+  "rewrites": [
+    { "source": "/api/chat", "destination": "/api/chat" }
+  ]
 }
