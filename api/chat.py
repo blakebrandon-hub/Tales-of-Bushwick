@@ -53,7 +53,7 @@ def chat():
         messages = [{'role': 'user', 'content': 'Start Game'}]
 
     payload = {
-        'model': 'claude-sonnet-4-5',
+        'model': 'claude-sonnet-4-5-20250929',
         'max_tokens': 1000,
         'temperature': 0.6,
         'system': [
