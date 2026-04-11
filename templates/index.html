@@ -155,7 +155,7 @@
 
 <script>
 
-    const anthropicKey = '{{ANTHROPIC_API_KEY}}';
+    // API key lives server-side in /api/chat
 
     const conversationLog = [];
     
@@ -207,35 +207,20 @@ Structure:
         }
 
         try {
-            // --- YOUR EXACT API CALL START ---
-            const response = await fetch('https://api.anthropic.com/v1/messages', {
+            const response = await fetch('/api/chat', {
               method: 'POST',
-              headers: {
-                'x-api-key': anthropicKey,
-                'anthropic-version': '2023-06-01',
-                'content-type': 'application/json',
-                'anthropic-dangerous-direct-browser-access': 'true',
-                'anthropic-beta': 'prompt-caching-2024-07-31'
-              },
+              headers: { 'content-type': 'application/json' },
               body: JSON.stringify({
-                model: 'claude-sonnet-4-5-20250929',
-                max_tokens: 1000,
-                temperature: 0.6,
-                system: [{
-                    type: 'text',
-                    text: BASE_PROMPT,
-                    cache_control: { type: 'ephemeral' }
-                  },
-                  {
-                    type: 'text',
-                    text: `Current State: Dignity: ${gameState.dignity}, Cash: ${gameState.liquidity}, Time: ${gameState.time}. Context: ${context}`
-                  }
-                ],
-messages: conversationLog.slice(-10).map(c => ({ 
-    role: c.role === 'Warden' ? 'assistant' : 'user', 
-    content: c.message 
-}))
-
+                gameState: {
+                  dignity: gameState.dignity,
+                  liquidity: gameState.liquidity,
+                  time: gameState.time
+                },
+                context: context,
+                messages: conversationLog.slice(-10).map(c => ({
+                  role: c.role === 'Warden' ? 'assistant' : 'user',
+                  content: c.message
+                }))
               })
             });
 
@@ -245,8 +230,7 @@ messages: conversationLog.slice(-10).map(c => ({
             }
 
             const data = await response.json();
-            let rawMessage = data.content[0].text;
-            // --- YOUR EXACT API CALL END ---
+            let rawMessage = data.content;
             
             // Clean up potentially messy JSON output
             rawMessage = rawMessage.replace(/```json/g, '').replace(/```/g, '').trim();
