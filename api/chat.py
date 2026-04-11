@@ -39,9 +39,9 @@ def chat():
     if request.method == 'GET':
         return jsonify({'status': 'ok'}), 200
 
-    api_key = os.environ.get('ANTHROPIC_API_KEY')
+    api_key = os.environ.get('ANTHROPIC_API_KEY', None)
     if not api_key:
-        return jsonify({'error': 'API key not configured'}), 500
+        return jsonify({'content': '{"text": "No API key configured. Set ANTHROPIC_API_KEY in your Vercel environment variables.", "system": "Configuration Error", "choices": []}'}), 200
 
     body = request.get_json()
     game_state = body.get('gameState', {})
