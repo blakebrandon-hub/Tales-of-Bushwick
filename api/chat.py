@@ -39,7 +39,7 @@ def chat():
     if request.method == 'GET':
         return jsonify({'status': 'ok'}), 200
 
-    api_key = os.environ.get('ANTHROPIC_API_KEY', None)
+    api_key = os.environ.get('GEMINI_API_KEY', None)
     if not api_key:
         return jsonify({'content': None}), 200
 
@@ -48,36 +48,26 @@ def chat():
     context = body.get('context', '')
     messages = body.get('messages', [])
 
-    # Ensure at least one user message
     if not messages:
         messages = [{'role': 'user', 'content': 'Start Game'}]
 
+    # Convert messages to Gemini format
+    gemini_messages = []
+    for m in messages:
+        role = 'model' if m['role'] == 'assistant' else 'user'
+        gemini_messages.append({'role': role, 'parts': [{'text': m['content']}]})
+
+    system_text = BASE_PROMPT + f"\n\nCurrent State: Dignity: {game_state.get('dignity')}, Cash: {game_state.get('liquidity')}, Time: {game_state.get('time')}. Context: {context}"
+
     payload = {
-        'model': 'claude-sonnet-4-5-20250929',
-        'max_tokens': 1000,
-        'temperature': 0.6,
-        'system': [
-            {
-                'type': 'text',
-                'text': BASE_PROMPT,
-                'cache_control': {'type': 'ephemeral'}
-            },
-            {
-                'type': 'text',
-                'text': f"Current State: Dignity: {game_state.get('dignity')}, Cash: {game_state.get('liquidity')}, Time: {game_state.get('time')}. Context: {context}"
-            }
-        ],
-        'messages': messages
+        'system_instruction': {'parts': [{'text': system_text}]},
+        'contents': gemini_messages,
+        'generationConfig': {'temperature': 0.6, 'maxOutputTokens': 1000}
     }
 
     resp = requests.post(
-        'https://api.anthropic.com/v1/messages',
-        headers={
-            'x-api-key': api_key,
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json',
-            'anthropic-beta': 'prompt-caching-2024-07-31'
-        },
+        f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent',
+        headers={'x-goog-api-key': api_key, 'content-type': 'application/json'},
         json=payload,
         timeout=30
     )
@@ -85,7 +75,7 @@ def chat():
     if not resp.ok:
         return jsonify({'error': resp.text}), resp.status_code
 
-    raw = resp.json()['content'][0]['text']
+    raw = resp.json()['candidates'][0]['content']['parts'][0]['text']
     raw = raw.replace('```json', '').replace('```', '').strip()
 
     return jsonify({'content': raw})
