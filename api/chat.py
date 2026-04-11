@@ -1,7 +1,7 @@
 import os
 import json
 import requests
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
@@ -25,6 +25,11 @@ Structure:
 - 'cost' is money spent. 'damage' is dignity lost.
 - If the user action was successful, make the next scene slightly weird.
 - If the user failed, make it socially awkward."""
+
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
 
 
 @app.route('/api/chat', methods=['POST'])
