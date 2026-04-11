@@ -1,4 +1,4 @@
 {
-  "buildCommand": "sed -i \"s|{{ANTHROPIC_API_KEY}}|$ANTHROPIC_API_KEY|g\" index.html",
+  "buildCommand": "sed \"s|{{ANTHROPIC_API_KEY}}|$ANTHROPIC_API_KEY|g\" index.html > index.tmp && mv index.tmp index.html",
   "outputDirectory": "."
 }
