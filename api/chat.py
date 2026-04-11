@@ -41,7 +41,7 @@ def chat():
 
     api_key = os.environ.get('ANTHROPIC_API_KEY', None)
     if not api_key:
-        return jsonify({'content': '{"text": "No API key configured. Set ANTHROPIC_API_KEY in your Vercel environment variables.", "system": "Configuration Error", "choices": []}'}), 200
+        return jsonify({'content': None}), 200
 
     body = request.get_json()
     game_state = body.get('gameState', {})
@@ -53,7 +53,7 @@ def chat():
         messages = [{'role': 'user', 'content': 'Start Game'}]
 
     payload = {
-        'model': 'claude-sonnet-4-5-20250929',
+        'model': 'claude-sonnet-4-5',
         'max_tokens': 1000,
         'temperature': 0.6,
         'system': [
