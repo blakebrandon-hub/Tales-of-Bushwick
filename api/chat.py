@@ -1,7 +1,7 @@
 import os
 import json
 import requests
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, send_from_directory
 
 app = Flask(__name__)
 
@@ -26,14 +26,19 @@ Structure:
 - If the user action was successful, make the next scene slightly weird.
 - If the user failed, make it socially awkward."""
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-@app.route('/', methods=['GET'])
+
+@app.route('/')
 def index():
-    return render_template('index.html')
+    return send_from_directory(ROOT_DIR, 'index.html')
 
 
-@app.route('/api/chat', methods=['POST'])
+@app.route('/api/chat', methods=['GET', 'POST'])
 def chat():
+    if request.method == 'GET':
+        return jsonify({'status': 'ok'}), 200
+
     api_key = os.environ.get('ANTHROPIC_API_KEY')
     if not api_key:
         return jsonify({'error': 'API key not configured'}), 500
@@ -84,3 +89,7 @@ def chat():
     raw = raw.replace('```json', '').replace('```', '').strip()
 
     return jsonify({'content': raw})
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
