@@ -145,7 +145,7 @@
     </header>
 
     <main id="narrative-scroll">
-        <div id="story-text" class="narrative-text">Waiting for user authentication...</div>
+        <div id="story-text" class="narrative-text"></div>
         <div id="system-msg" class="system-message"></div>
         <div id="loading" class="loading-bagel">🥯</div>
     </main>
@@ -230,7 +230,8 @@ Structure:
             }
 
             const data = await response.json();
-            let rawMessage = data.content;
+            if (!data || !data.content) return { text: '', system: '', choices: [] };
+            let rawMessage = String(data.content);
             
             // Clean up potentially messy JSON output
             rawMessage = rawMessage.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -312,9 +313,15 @@ Structure:
     }
 
     // --- INITIALIZATION ---
-    document.getElementById('story-text').innerText = "Initializing Bushwick Reality Protocol...";
     updateHUD();
-    nextTurn();
+    const startBtn = document.createElement('button');
+    startBtn.className = 'choice-btn';
+    startBtn.innerHTML = '> Start Game';
+    startBtn.onclick = () => {
+        startBtn.remove();
+        nextTurn();
+    };
+    document.getElementById('choices-area').appendChild(startBtn);
 
 </script>
 </body>
