@@ -230,8 +230,8 @@ Structure:
             }
 
             const data = await response.json();
-            if (!data.content) return { text: '', system: '', choices: [] };
-            let rawMessage = data.content;
+            if (!data || !data.content) return { text: '', system: '', choices: [] };
+            let rawMessage = String(data.content);
             
             // Clean up potentially messy JSON output
             rawMessage = rawMessage.replace(/```json/g, '').replace(/```/g, '').trim();
