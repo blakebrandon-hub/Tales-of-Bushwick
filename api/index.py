@@ -230,6 +230,7 @@ Structure:
             }
 
             const data = await response.json();
+            if (!data.content) return { text: '', system: '', choices: [] };
             let rawMessage = data.content;
             
             // Clean up potentially messy JSON output
